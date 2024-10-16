@@ -159,7 +159,7 @@ type calicoHelmParams struct {
 	KeosRegUrl     string
 	Private        bool
 	IsNetPolEngine bool
-	Annotations map[string]string
+	Annotations    map[string]string
 }
 
 type commonHelmParams struct {
@@ -210,32 +210,32 @@ var commonsCharts = ChartsDictionary{
 	Charts: map[string]map[string]map[string]commons.ChartEntry{
 		"28": {
 			"managed": {
-				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true},
-				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true},
+				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true, Reconcile: true},
+				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true, Reconcile: true},
 			},
 			"unmanaged": {
-				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true},
-				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true},
+				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true, Reconcile: true},
+				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true, Reconcile: true},
 			},
 		},
 		"29": {
 			"managed": {
-				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true},
-				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true},
+				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true, Reconcile: true},
+				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true, Reconcile: true},
 			},
 			"unmanaged": {
-				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true},
-				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true},
+				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true, Reconcile: true},
+				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true, Reconcile: true},
 			},
 		},
 		"30": {
 			"managed": {
-				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true},
-				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true},
+				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true, Reconcile: true},
+				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true, Reconcile: true},
 			},
 			"unmanaged": {
-				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true},
-				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true},
+				"cert-manager": {Repository: "https://charts.jetstack.io", Version: "v1.14.5", Namespace: "cert-manager", Pull: true, Reconcile: true},
+				"flux2":        {Repository: "https://fluxcd-community.github.io/helm-charts", Version: "2.12.2", Namespace: "kube-system", Pull: true, Reconcile: true},
 			},
 		},
 	},
@@ -462,7 +462,6 @@ func (p *Provider) deployCertManager(n nodes.Node, keosRegistryUrl string, kubec
 	return nil
 }
 
-
 func (p *Provider) deployClusterOperator(n nodes.Node, privateParams PrivateParams, clusterCredentials commons.ClusterCredentials, keosRegistry KeosRegistry, clusterConfig *commons.ClusterConfig, kubeconfigPath string, firstInstallation bool, helmRepoCreds HelmRegistry) error {
 	var c string
 	var err error
@@ -535,6 +534,10 @@ func (p *Provider) deployClusterOperator(n nodes.Node, privateParams PrivatePara
 		if keosCluster.Spec.InfraProvider != "aws" || (keosCluster.Spec.InfraProvider == "aws" && !keosCluster.Spec.ControlPlane.Managed) {
 			keosCluster.Spec.ControlPlane.AWS = commons.AWSCP{}
 		}
+		if !(keosCluster.Spec.InfraProvider == "gcp" && keosCluster.Spec.ControlPlane.Managed) {
+			keosCluster.Spec.ControlPlane.Gcp = commons.GCPCP{}
+		}
+
 		if keosCluster.Spec.ControlPlane.Managed {
 			keosCluster.Spec.ControlPlane.HighlyAvailable = nil
 		}
@@ -690,7 +693,7 @@ func installCalico(n nodes.Node, k string, privateParams PrivateParams, isNetPol
 		KeosRegUrl:     privateParams.KeosRegUrl,
 		Private:        privateParams.Private,
 		IsNetPolEngine: isNetPolEngine,
-		Annotations:    map[string]string{
+		Annotations: map[string]string{
 			postInstallAnnotation: "var-lib-calico",
 		},
 	}
@@ -898,7 +901,7 @@ func reconcileCharts(n nodes.Node, k string, privateParams PrivateParams, keosCl
 	// Iterate through charts and create Helm repositories and releases
 	for name, entry := range chartsList {
 		// Create fluxHelmReleaseParams for the current entry
-		fluxHelmReleaseParams := fluxHelmReleaseParams {
+		fluxHelmReleaseParams := fluxHelmReleaseParams{
 			ChartRepoRef: "keos",
 		}
 		// Update fluxHelmRepositoryParams if not private
@@ -906,10 +909,8 @@ func reconcileCharts(n nodes.Node, k string, privateParams PrivateParams, keosCl
 			fluxHelmReleaseParams.ChartRepoRef = name
 		}
 
-		fluxAdoptedCharts := regexp.MustCompile(`^(tigera-operator|.+-cloud-controller-manager|cloud-provider-azure|flux2|cert-manager)$`)
-
 		// Adopt helm charts already deployed: tigera-operator and cloud-provider
-		if fluxAdoptedCharts.MatchString(name) {
+		if entry.Reconcile {
 			fluxHelmReleaseParams.ChartName = name
 			fluxHelmReleaseParams.ChartNamespace = entry.Namespace
 			fluxHelmReleaseParams.ChartVersion = entry.Version
@@ -975,20 +976,20 @@ func configureHelmRelease(n nodes.Node, k string, templatePath string, params fl
 	var defaultHelmReleaseSourceInterval = "1m"
 
 	completedfluxHelmReleaseParams := struct {
-		ChartName				  string
+		ChartName                 string
 		ChartNamespace            string
 		ChartRepoRef              string
-		ChartVersion			  string
+		ChartVersion              string
 		HelmReleaseInterval       string
 		HelmReleaseRetries        int
 		HelmReleaseSourceInterval string
 	}{
-		ChartName: 				   params.ChartName,
-		ChartNamespace: 		   params.ChartNamespace,
-		ChartRepoRef: 			   params.ChartRepoRef,
-		ChartVersion: 			   params.ChartVersion,
-		HelmReleaseInterval: 	   defaultHelmReleaseInterval,
-		HelmReleaseRetries: 	   defaultHelmReleaseRetries,
+		ChartName:                 params.ChartName,
+		ChartNamespace:            params.ChartNamespace,
+		ChartRepoRef:              params.ChartRepoRef,
+		ChartVersion:              params.ChartVersion,
+		HelmReleaseInterval:       defaultHelmReleaseInterval,
+		HelmReleaseRetries:        defaultHelmReleaseRetries,
 		HelmReleaseSourceInterval: defaultHelmReleaseSourceInterval,
 	}
 
@@ -1475,20 +1476,20 @@ func installCorednsPdb(n nodes.Node) error {
 
 func pullCharts(n nodes.Node, charts map[string]commons.ChartEntry, keosSpec commons.KeosSpec, clusterCredentials commons.ClusterCredentials) error {
 	for name, chart := range charts {
-        // Set default repository if needed
-        if chart.Repository == "default" {
-            chart.Repository = keosSpec.HelmRepository.URL
-        }
+		// Set default repository if needed
+		if chart.Repository == "default" {
+			chart.Repository = keosSpec.HelmRepository.URL
+		}
 		// Check if the chart needs to be pulled
 		if chart.Pull {
 			var c string
-            if strings.HasPrefix(chart.Repository, "oci://") {
-                c = "helm pull " + chart.Repository + "/" + name + " --version " + chart.Version + " --untar --untardir /stratio/helm"
-            } else {
-                c = "helm pull " + name + " --version " + chart.Version + " --repo " + chart.Repository + " --untar --untardir /stratio/helm"
-            }
+			if strings.HasPrefix(chart.Repository, "oci://") {
+				c = "helm pull " + chart.Repository + "/" + name + " --version " + chart.Version + " --untar --untardir /stratio/helm"
+			} else {
+				c = "helm pull " + name + " --version " + chart.Version + " --repo " + chart.Repository + " --untar --untardir /stratio/helm"
+			}
 			// Add authentication if required
-            if chart.Repository == keosSpec.HelmRepository.URL && keosSpec.HelmRepository.AuthRequired {
+			if chart.Repository == keosSpec.HelmRepository.URL && keosSpec.HelmRepository.AuthRequired {
 				if keosSpec.HelmRepository.AuthRequired {
 					c = c + " --username " + clusterCredentials.HelmRepositoryCredentials["User"] + " --password " + clusterCredentials.HelmRepositoryCredentials["Pass"]
 				}

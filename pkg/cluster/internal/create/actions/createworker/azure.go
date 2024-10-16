@@ -59,31 +59,31 @@ var azureCharts = ChartsDictionary{
 		"28": {
 			"managed": {},
 			"unmanaged": {
-				"azuredisk-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azuredisk-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.28.7", Pull: false},
-				"azurefile-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.28.7", Pull: false},
-				"cloud-provider-azure": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/cloud-provider-azure/master/helm/repo", Namespace: "kube-system", Version: "v1.28.5", Pull: true},
-				"cluster-autoscaler":   {Repository: "https://kubernetes.github.io/autoscaler", Version: "9.34.1", Namespace: "kube-system", Pull: false},
-				"tigera-operator":      {Repository: "https://docs.projectcalico.org/charts", Version: "v3.28.2", Namespace: "tigera-operator", Pull: true},
+				"azuredisk-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azuredisk-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.28.7", Pull: false, Reconcile: false},
+				"azurefile-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.28.7", Pull: false, Reconcile: false},
+				"cloud-provider-azure": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/cloud-provider-azure/master/helm/repo", Namespace: "kube-system", Version: "v1.28.5", Pull: true, Reconcile: true},
+				"cluster-autoscaler":   {Repository: "https://kubernetes.github.io/autoscaler", Version: "9.34.1", Namespace: "kube-system", Pull: false, Reconcile: false},
+				"tigera-operator":      {Repository: "https://docs.projectcalico.org/charts", Version: "v3.28.2", Namespace: "tigera-operator", Pull: true, Reconcile: true},
 			},
 		},
 		"29": {
 			"managed": {},
 			"unmanaged": {
-				"azuredisk-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azuredisk-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.29.5", Pull: false},
-				"azurefile-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.29.5", Pull: false},
-				"cloud-provider-azure": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/cloud-provider-azure/master/helm/repo", Namespace: "kube-system", Version: "v1.29.0", Pull: true},
-				"cluster-autoscaler":   {Repository: "https://kubernetes.github.io/autoscaler", Version: "9.35.0", Namespace: "kube-system", Pull: false},
-				"tigera-operator":      {Repository: "https://docs.projectcalico.org/charts", Version: "v3.28.2", Namespace: "tigera-operator", Pull: true},
+				"azuredisk-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azuredisk-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.29.5", Pull: false, Reconcile: false},
+				"azurefile-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.29.5", Pull: false, Reconcile: false},
+				"cloud-provider-azure": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/cloud-provider-azure/master/helm/repo", Namespace: "kube-system", Version: "v1.29.0", Pull: true, Reconcile: true},
+				"cluster-autoscaler":   {Repository: "https://kubernetes.github.io/autoscaler", Version: "9.35.0", Namespace: "kube-system", Pull: false, Reconcile: false},
+				"tigera-operator":      {Repository: "https://docs.projectcalico.org/charts", Version: "v3.28.2", Namespace: "tigera-operator", Pull: true, Reconcile: true},
 			},
 		},
 		"30": {
 			"managed": {},
 			"unmanaged": {
-				"azuredisk-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azuredisk-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.30.1", Pull: false},
-				"azurefile-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.30.2", Pull: false},
-				"cloud-provider-azure": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/cloud-provider-azure/master/helm/repo", Namespace: "kube-system", Version: "v1.30.4", Pull: true},
-				"cluster-autoscaler":   {Repository: "https://kubernetes.github.io/autoscaler", Version: "9.37.0", Namespace: "kube-system", Pull: false},
-				"tigera-operator":      {Repository: "https://docs.projectcalico.org/charts", Version: "v3.28.0", Namespace: "tigera-operator", Pull: true},
+				"azuredisk-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azuredisk-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.30.1", Pull: false, Reconcile: false},
+				"azurefile-csi-driver": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/master/charts", Namespace: "kube-system", Version: "v1.30.2", Pull: false, Reconcile: false},
+				"cloud-provider-azure": {Repository: "https://raw.githubusercontent.com/kubernetes-sigs/cloud-provider-azure/master/helm/repo", Namespace: "kube-system", Version: "v1.30.4", Pull: true, Reconcile: true},
+				"cluster-autoscaler":   {Repository: "https://kubernetes.github.io/autoscaler", Version: "9.37.0", Namespace: "kube-system", Pull: false, Reconcile: false},
+				"tigera-operator":      {Repository: "https://docs.projectcalico.org/charts", Version: "v3.28.0", Namespace: "tigera-operator", Pull: true, Reconcile: true},
 			},
 		},
 	},
@@ -227,7 +227,7 @@ func (b *AzureBuilder) installCSI(n nodes.Node, kubeconfigPath string, privatePa
 	if !privateParams.KeosCluster.Spec.ControlPlane.Managed {
 		var ctx = context.Background()
 		azureDiskSecretFile := "/kind/azuredisk-azure.json"
-		azureDiskNamespace := 	chartsList["azuredisk-csi-driver"].Namespace
+		azureDiskNamespace := chartsList["azuredisk-csi-driver"].Namespace
 		nodesIdentity := privateParams.KeosCluster.Spec.Security.NodesIdentity
 
 		matchResourceGroup := strings.Split(nodesIdentity, "resourceGroups/")
@@ -265,18 +265,18 @@ func (b *AzureBuilder) installCSI(n nodes.Node, kubeconfigPath string, privatePa
 		objectIDIdentity := *managedIdentity.Properties.ClientID
 
 		azureDiskParams := struct {
-			TenantID  string
-			SubscriptionID string
-			KeosClusterName string
-			Region string
-			Networks commons.Networks
+			TenantID               string
+			SubscriptionID         string
+			KeosClusterName        string
+			Region                 string
+			Networks               commons.Networks
 			UserAssignedIdentityID string
 		}{
-			TenantID: providerParams.Credentials["TenantID"],
-			SubscriptionID: providerParams.Credentials["SubscriptionID"],
-			KeosClusterName: providerParams.ClusterName,
-			Region: providerParams.Region,
-			Networks: privateParams.KeosCluster.Spec.Networks,
+			TenantID:               providerParams.Credentials["TenantID"],
+			SubscriptionID:         providerParams.Credentials["SubscriptionID"],
+			KeosClusterName:        providerParams.ClusterName,
+			Region:                 providerParams.Region,
+			Networks:               privateParams.KeosCluster.Spec.Networks,
 			UserAssignedIdentityID: objectIDIdentity,
 		}
 
@@ -291,7 +291,7 @@ func (b *AzureBuilder) installCSI(n nodes.Node, kubeconfigPath string, privatePa
 			return errors.Wrap(err, "failed to create azuredisk driver config")
 		}
 		c = "kubectl --kubeconfig " + kubeconfigPath + " create secret generic azure-cloud-provider -n " +
-		azureDiskNamespace + " --from-file=cloud-config=/kind/azuredisk-azure.json"
+			azureDiskNamespace + " --from-file=cloud-config=/kind/azuredisk-azure.json"
 		_, err = commons.ExecuteCommand(n, c, 5, 3)
 		if err != nil {
 			return errors.Wrap(err, "failed to create azuredisk secret")
